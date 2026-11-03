@@ -137,19 +137,17 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ onSelectProject }) =
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id as any)}
-              className={`shrink-0 flex items-center gap-2 rounded-full px-4 py-2 font-mono text-xs transition-all duration-300 ${
-                activeCategory === cat.id
-                  ? 'bg-[#F55B17] text-white font-bold shadow-orange-sm'
-                  : 'bg-[#101114] border border-[#1E2025] text-[#888E99] hover:border-[#C8CCD4]/40 hover:text-white'
-              }`}
+              className={`shrink-0 flex items-center gap-2 rounded-full px-4 py-2 font-mono text-xs transition-all duration-300 ${activeCategory === cat.id
+                ? 'bg-[#F55B17] text-white font-bold shadow-orange-sm'
+                : 'bg-[#101114] border border-[#1E2025] text-[#888E99] hover:border-[#C8CCD4]/40 hover:text-white'
+                }`}
             >
               <span>{cat.label}</span>
               <span
-                className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                  activeCategory === cat.id
-                    ? 'bg-black/30 text-white'
-                    : 'bg-[#08090B] text-[#5B616E]'
-                }`}
+                className={`text-[10px] px-1.5 py-0.5 rounded-full ${activeCategory === cat.id
+                  ? 'bg-black/30 text-white'
+                  : 'bg-[#08090B] text-[#5B616E]'
+                  }`}
               >
                 {cat.count}
               </span>
@@ -185,9 +183,8 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ onSelectProject }) =
                   className="group relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F55B17]/50 rounded-2xl"
                 >
                   <div
-                    className={`grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center ${
-                      isEven ? 'lg:flex-row-reverse' : ''
-                    }`}
+                    className={`grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center ${isEven ? 'lg:flex-row-reverse' : ''
+                      }`}
                   >
                     {/* Visual Interactive Mockup (7 Cols) */}
                     <div className={`lg:col-span-7 ${isEven ? 'lg:order-2' : 'lg:order-1'}`}>
@@ -232,11 +229,10 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ onSelectProject }) =
                                 ].map((node, i) => (
                                   <div
                                     key={i}
-                                    className={`rounded-lg border p-2 flex flex-col justify-between transition-colors ${
-                                      node.active
-                                        ? 'border-[#F55B17]/40 bg-[#101114] text-white'
-                                        : 'border-[#1E2025] bg-[#08090B] text-[#5B616E]'
-                                    }`}
+                                    className={`rounded-lg border p-2 flex flex-col justify-between transition-colors ${node.active
+                                      ? 'border-[#F55B17]/40 bg-[#101114] text-white'
+                                      : 'border-[#1E2025] bg-[#08090B] text-[#5B616E]'
+                                      }`}
                                   >
                                     <div className="flex items-center justify-between font-mono text-[10px]">
                                       <span>{node.name}</span>
@@ -280,13 +276,12 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ onSelectProject }) =
                                     <div
                                       key={i}
                                       style={{ height: `${h * 0.48}%` }}
-                                      className={`flex-1 rounded-t transition-all duration-300 ${
-                                        i >= 11
-                                          ? 'bg-[#F55B17] shadow-orange-sm'
-                                          : i >= 6
+                                      className={`flex-1 rounded-t transition-all duration-300 ${i >= 11
+                                        ? 'bg-[#F55B17] shadow-orange-sm'
+                                        : i >= 6
                                           ? 'bg-[#C8CCD4]/60'
                                           : 'bg-[#1E2025]'
-                                      }`}
+                                        }`}
                                     />
                                   )
                                 )}

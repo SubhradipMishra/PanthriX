@@ -1,23 +1,43 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { testimonialsData } from '../../data/testimonials';
 import { SectionWatermark } from '../ui/SectionWatermark';
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 
+const AUTOPLAY_MS = 6000;
+
+const pad = (n: number) => String(n).padStart(2, '0');
+
 export const Testimonials: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const reduceMotion = useReducedMotion();
+
+  const total = testimonialsData.length;
   const current = testimonialsData[activeIndex];
 
-  const handleNext = () => {
-    setActiveIndex((prev) => (prev + 1) % testimonialsData.length);
-  };
+  const handleNext = () => setActiveIndex((prev) => (prev + 1) % total);
+  const handlePrev = () => setActiveIndex((prev) => (prev - 1 + total) % total);
 
-  const handlePrev = () => {
-    setActiveIndex((prev) => (prev - 1 + testimonialsData.length) % testimonialsData.length);
-  };
+  // Automatic carousel: advances every few seconds, pauses while the user
+  // hovers or focuses the card, and is disabled for reduced-motion users.
+  useEffect(() => {
+    if (paused || reduceMotion || total < 2) return;
+    const id = setTimeout(() => {
+      setActiveIndex((prev) => (prev + 1) % total);
+    }, AUTOPLAY_MS);
+    return () => clearTimeout(id);
+  }, [activeIndex, paused, reduceMotion, total]);
+
+  if (!current) return null;
+
+  const autoplaying = !paused && !reduceMotion && total > 1;
 
   return (
-    <section id="testimonials" className="relative w-full bg-[#08090B] py-28 sm:py-36 px-4 sm:px-6 lg:px-12 select-none overflow-hidden">
+    <section
+      id="testimonials"
+      className="relative w-full bg-[#08090B] py-28 sm:py-36 px-4 sm:px-6 lg:px-12 select-none overflow-hidden"
+    >
       {/* Giant TRUST watermark */}
       <SectionWatermark word="TRUST" outline={true} speed={80} align="center" />
 
@@ -37,7 +57,13 @@ export const Testimonials: React.FC = () => {
         </div>
 
         {/* Oversized Orange Quote & Active Quote Box */}
-        <div className="relative rounded-3xl border border-[#1E2025] bg-[#101114] p-8 sm:p-14 md:p-16 shadow-2xl overflow-hidden min-h-[380px] flex flex-col justify-between">
+        <div
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+          onFocus={() => setPaused(true)}
+          onBlur={() => setPaused(false)}
+          className="relative rounded-3xl border border-[#1E2025] bg-[#101114] p-8 sm:p-14 md:p-16 shadow-2xl overflow-hidden min-h-[380px] flex flex-col justify-between"
+        >
           <div className="absolute inset-0 bg-titanium-gradient opacity-30 pointer-events-none" />
 
           {/* Giant Orange Quote Icon in background */}
@@ -46,7 +72,7 @@ export const Testimonials: React.FC = () => {
           </div>
 
           {/* Crossfading Quote Content */}
-          <div className="relative z-10">
+          <div className="relative z-10" aria-live="polite">
             <AnimatePresence mode="wait">
               <motion.div
                 key={current.id}
@@ -71,12 +97,12 @@ export const Testimonials: React.FC = () => {
                     className="h-14 w-14 rounded-full border-2 border-[#1E2025] object-cover shadow-sm"
                   />
                   <div>
-                    {/* Fix for Issue 9: Changed h4 to h3 to preserve heading hierarchy (H2 -> H3) */}
                     <h3 className="font-display text-xl font-bold text-white">
                       {current.author}
                     </h3>
                     <p className="font-mono text-xs text-[#888E99]">
-                      {current.role} &middot; <span className="text-[#F55B17]">{current.company}</span>
+                      {current.role} &middot;{' '}
+                      <span className="text-[#F55B17]">{current.company}</span>
                     </p>
                   </div>
                 </div>
@@ -84,47 +110,46 @@ export const Testimonials: React.FC = () => {
             </AnimatePresence>
           </div>
 
-          {/* Navigation Controls with standardized btn-icon */}
-          <div className="relative z-10 pt-8 mt-8 border-t border-[#1E2025] flex items-center justify-between">
-            <div className="font-mono text-xs text-[#888E99]">
-              0{activeIndex + 1} <span className="text-[#1E2025]">/</span> 0{testimonialsData.length}
+          {/* Controls */}
+          <div className="relative z-10 pt-8 mt-8 border-t border-[#1E2025]">
+            {/* Autoplay progress line */}
+            <div className="absolute -top-px left-0 right-0 h-px overflow-hidden">
+              {autoplaying && (
+                <motion.div
+                  key={`progress-${activeIndex}`}
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ duration: AUTOPLAY_MS / 1000, ease: 'linear' }}
+                  style={{ transformOrigin: 'left' }}
+                  className="h-full w-full bg-[#F55B17]"
+                />
+              )}
             </div>
 
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handlePrev}
-                aria-label="Previous quote"
-                className="btn-icon"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={handleNext}
-                aria-label="Next quote"
-                className="btn-icon"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
+            <div className="flex items-center justify-between">
+              <div className="font-mono text-xs text-[#888E99]">
+                {pad(activeIndex + 1)} <span className="text-[#1E2025]">/</span>{' '}
+                {pad(total)}
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handlePrev}
+                  aria-label="Previous quote"
+                  className="btn-icon"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={handleNext}
+                  aria-label="Next quote"
+                  className="btn-icon"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Client Carousel with standardized btn-pill styling */}
-        <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4" data-cursor="drag">
-          {testimonialsData.map((item, idx) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveIndex(idx)}
-              className={activeIndex === idx ? 'btn-pill-active text-left' : 'btn-pill text-left'}
-            >
-              <div className="font-display font-bold text-sm text-white">
-                {item.author}
-              </div>
-              <div className="font-mono text-xs text-[#888E99] truncate mt-0.5">
-                {item.company}
-              </div>
-            </button>
-          ))}
         </div>
       </div>
     </section>

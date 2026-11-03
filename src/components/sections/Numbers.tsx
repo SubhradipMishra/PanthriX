@@ -34,8 +34,10 @@ const Counter: React.FC<{ value: number; suffix: string; isInView: boolean }> = 
   }, [isInView, value]);
 
   return (
-    <span className="font-display font-black tracking-tight text-[#08090B] text-6xl sm:text-8xl">
-      {count}
+    // Alignment: number + suffix share one baseline, never wrap, and use
+    // fixed-width digits so the layout doesn't jitter while counting.
+    <span className="inline-flex items-baseline whitespace-nowrap font-display font-black leading-none tracking-tight tabular-nums text-[#08090B] text-6xl sm:text-7xl lg:text-[length:5.2cqw]">
+      <span>{count}</span>
       <span className="text-[#F55B17] ml-1">{suffix}</span>
     </span>
   );
@@ -77,28 +79,31 @@ export const Numbers: React.FC = () => {
             </h2>
           </div>
 
-          <p className="max-w-md font-sans text-sm text-[#08090B]/70 leading-relaxed">
+          <p className="max-w-md font-sans text-sm text-[#08090B]/70 leading-relaxed md:text-right">
             In software engineering, promises are meaningless. Throughput, uptime, and retention are the only currency that matters.
           </p>
         </div>
 
         {/* 4 Stats Grid */}
-        <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+        {/* [container-type:inline-size] lets the numbers scale with the grid width (cqw) so the widest value, e.g. 99.99%, always fits its column */}
+        <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 items-stretch gap-8 md:gap-12 [container-type:inline-size]">
           {statsData.map((stat) => (
             <div
               key={stat.id}
-              className="flex flex-col justify-between border-l-2 border-[#08090B]/10 pl-6 py-2 transition-all hover:border-[#F55B17]"
+              className="flex h-full flex-col items-start border-l-2 border-[#08090B]/10 pl-6 py-2 transition-all hover:border-[#F55B17]"
             >
-              <div>
+              {/* Fixed-height number row keeps every label on the same line across cards */}
+              <div className="flex min-h-[3.75rem] sm:min-h-[4.5rem] lg:min-h-0 items-end">
                 <Counter
                   value={stat.value}
                   suffix={stat.suffix}
                   isInView={isInView}
                 />
-                <h3 className="mt-3 font-display text-xl font-bold text-[#08090B]">
-                  {stat.label}
-                </h3>
               </div>
+
+              <h3 className="mt-4 font-display text-xl font-bold leading-tight text-[#08090B]">
+                {stat.label}
+              </h3>
 
               <p className="mt-2 text-xs sm:text-sm text-[#08090B]/65 leading-relaxed font-sans">
                 {stat.sublabel}
